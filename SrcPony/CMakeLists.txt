@@ -35,6 +35,7 @@ SET(PONY_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/aboutmdlg.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/pic125xx.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/picbusnew.cpp
 #                  ${CMAKE_CURRENT_SOURCE_DIR}/retrymdlg.cpp
+                 ${CMAKE_CURRENT_SOURCE_DIR}/ch341a.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/spi-bus.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/at250bus2.cpp
                  ${CMAKE_CURRENT_SOURCE_DIR}/at89sxx.cpp
@@ -131,6 +132,7 @@ SET(PONY_NOMOC_HEADERS
                  ${CMAKE_CURRENT_SOURCE_DIR}/motsfbuf.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/pic168xx.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/portint.h
+                 ${CMAKE_CURRENT_SOURCE_DIR}/ch341a.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/spi-bus.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/x2444bus.h
                  ${CMAKE_CURRENT_SOURCE_DIR}/at250xx.h
