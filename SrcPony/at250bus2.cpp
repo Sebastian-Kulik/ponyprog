@@ -28,11 +28,12 @@
 #include "at250bus2.h"
 #include "errcode.h"
 
+#include <QtCore>
 #include <QDebug>
 
 #include "e2cmdw.h"
 
-#ifndef __linux__
+#ifndef Q_OS_LINUX
 #  ifdef        __BORLANDC__
 #    define     __inline__
 #  else // _MICROSOFT_ VC++

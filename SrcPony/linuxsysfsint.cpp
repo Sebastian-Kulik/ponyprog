@@ -29,6 +29,7 @@
 #include "errcode.h"
 #include "e2cmdw.h"
 
+#include <QtCore>
 #include <QDebug>
 #include <QProcess>
 #include <QString>
@@ -36,7 +37,7 @@
 #define GPIO_OUT                        true
 #define GPIO_IN                         false
 
-#ifdef  __linux__
+#ifdef  Q_OS_LINUX
 // # include <stdio.h>
 // # include <stdlib.h>
 # include <errno.h>
@@ -58,7 +59,7 @@ LinuxSysFsInterface::~LinuxSysFsInterface()
 	Close();
 }
 
-#ifdef  __linux__
+#ifdef  Q_OS_LINUX
 
 #define SYSFS_GPIO_DIR "/sys/class/gpio"
 #define MAX_BUF 64
@@ -211,7 +212,7 @@ int LinuxSysFsInterface::InitPins()
 	qDebug() << "LinuxSysFsInterface::InitPins Ctrl=" << pin_ctrl << ", Clock= " << pin_clock;
 	qDebug() << "DataIn=" << pin_datain << ", DataOut=" << pin_dataout;
 
-#ifdef  __linux__
+#ifdef  Q_OS_LINUX
 	fd_ctrl = gpio_open(pin_ctrl, GPIO_OUT);
 	fd_clock = gpio_open(pin_clock, GPIO_OUT);
 	fd_datain = gpio_open(pin_datain, GPIO_IN);
@@ -229,7 +230,7 @@ int LinuxSysFsInterface::InitPins()
 
 void LinuxSysFsInterface::DeInitPins()
 {
-#ifdef  __linux__
+#ifdef  Q_OS_LINUX
 	gpio_close(pin_ctrl, fd_ctrl);
 	gpio_close(pin_clock, fd_clock);
 	gpio_close(pin_datain, fd_datain);
@@ -283,7 +284,7 @@ void LinuxSysFsInterface::SetControlLine(int res)
 			res = !res;
 		}
 
-#ifdef  __linux__
+#ifdef  Q_OS_LINUX
 		int ret;
 
 		if (res)
@@ -316,7 +317,7 @@ void LinuxSysFsInterface::SetDataOut(int sda)
 			sda = !sda;
 		}
 
-#ifdef  __linux__
+#ifdef  Q_OS_LINUX
 		int ret;
 
 		if (sda)
@@ -349,7 +350,7 @@ void LinuxSysFsInterface::SetClock(int scl)
 			scl = !scl;
 		}
 
-#ifdef  __linux__
+#ifdef  Q_OS_LINUX
 		int ret;
 
 		if (scl)
@@ -399,7 +400,7 @@ int LinuxSysFsInterface::GetDataIn()
 	if (IsInstalled())
 	{
 		unsigned int val = 0;
-#ifdef  __linux__
+#ifdef  Q_OS_LINUX
 		int ret;
 		char ch;
 

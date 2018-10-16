@@ -29,6 +29,7 @@
 #include "errcode.h"
 
 #include <QDebug>
+#include <QtCore>
 
 #include "globals.h"
 #include "e2profil.h"
@@ -36,7 +37,7 @@
 
 class e2CmdWindow;
 
-#ifdef  __linux__
+#ifdef  Q_OS_LINUX
 //#  include <asm/io.h>
 #  include <unistd.h>
 #else

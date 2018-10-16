@@ -29,6 +29,7 @@
 #include "errcode.h"
 
 #include <QDebug>
+#include <QtCore>
 
 #include "e2cmdw.h"
 
@@ -36,7 +37,7 @@
 //  e quindi anche le AT90S1200
 #define _BIG_ENDIAN_
 
-#ifdef  __linux__
+#ifdef  Q_OS_LINUX
 //#  include <asm/io.h>
 #  include <unistd.h>
 #else

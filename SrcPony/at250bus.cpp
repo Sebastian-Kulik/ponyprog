@@ -29,8 +29,9 @@
 #include "errcode.h"
 
 #include <QDebug>
+#include <QtCore>
 
-#ifdef  __linux__
+#ifdef  Q_OS_LINUX
 //#  include <asm/io.h>
 #  include <unistd.h>
 #else

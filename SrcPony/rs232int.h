@@ -27,7 +27,9 @@
 #ifndef _RS232INTERFACE_H
 #define _RS232INTERFACE_H
 
-#ifdef  __linux__
+#include <QtCore>
+
+#ifdef  Q_OS_LINUX
 #include <termios.h>
 #endif
 
@@ -88,7 +90,7 @@ class RS232Interface
 	DWORD old_mask;
 	COMMTIMEOUTS old_timeout;
 	DCB old_dcb;
-#elif defined(__linux__)
+#elif defined(Q_OS_LINUX)
 	int fd;
 	struct termios old_termios;
 #endif

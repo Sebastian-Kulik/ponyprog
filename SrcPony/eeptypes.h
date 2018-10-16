@@ -237,9 +237,9 @@
 
 //#define PIC162XX      0x0F
 // Sub types
-//#define       PIC16200        0x0F0000
-//#define       PIC1627         0x0F0004
-//#define       PIC1628         0x0F0005
+//#define      PIC16200        0x0F0000
+//#define      PIC1627         0x0F0004
+//#define      PIC1628         0x0F0005
 
 #define X24C44XX        0x10
 // Sub types

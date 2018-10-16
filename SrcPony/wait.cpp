@@ -25,8 +25,8 @@
 //=========================================================================//
 
 #include <stdio.h>
-
-#ifdef __linux__
+#include <QtCore>
+#ifdef Q_OS_LINUX
 #include <unistd.h>
 #include <sys/time.h>
 #endif
@@ -138,7 +138,7 @@ inline int Wait::GetBogoKips()
 
 void Wait::WaitMsec(int msec)
 {
-#ifdef __linux__
+#ifdef Q_OS_LINUX
 	usleep(msec * 1000);
 #else
 # ifdef Q_OS_WIN32

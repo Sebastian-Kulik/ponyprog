@@ -33,13 +33,13 @@
 
 #include "e2cmdw.h"
 
-
+#include <QtCore>
 #include <QDebug>
 
 /*Attenzione!! il format Intel Hex e` Little Endian */
 #undef  _BIG_ENDIAN_
 
-#ifndef __linux__
+#ifndef Q_OS_LINUX
 #  ifdef        __BORLANDC__
 #    define     __inline__
 #  else // _MICROSOFT_ VC++

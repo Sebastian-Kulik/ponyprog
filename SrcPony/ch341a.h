@@ -20,46 +20,46 @@
 #ifndef __CH341_H__
 #define __CH341_H__
 
-#define     DEFAULT_TIMEOUT        1000     // 1000mS for USB timeouts
-#define     BULK_WRITE_ENDPOINT    0x02
-#define     BULK_READ_ENDPOINT     0x82
+#define    DEFAULT_TIMEOUT        1000     // 1000mS for USB timeouts
+#define    BULK_WRITE_ENDPOINT    0x02
+#define    BULK_READ_ENDPOINT     0x82
 
-#define     CH341_PACKET_LENGTH    0x20
-#define     CH341_MAX_PACKETS      256
-#define     CH341_MAX_PACKET_LEN   (CH341_PACKET_LENGTH * CH341_MAX_PACKETS)
-#define     CH341A_USB_VENDOR      0x1A86
-#define     CH341A_USB_PRODUCT     0x5512
+#define    CH341_PACKET_LENGTH    0x20
+#define    CH341_MAX_PACKETS      256
+#define    CH341_MAX_PACKET_LEN   (CH341_PACKET_LENGTH * CH341_MAX_PACKETS)
+#define    CH341A_USB_VENDOR      0x1A86
+#define    CH341A_USB_PRODUCT     0x5512
 
-#define     CH341A_CMD_SET_OUTPUT  0xA1
-#define     CH341A_CMD_IO_ADDR     0xA2
-#define     CH341A_CMD_PRINT_OUT   0xA3
-#define     CH341A_CMD_SPI_STREAM  0xA8
-#define     CH341A_CMD_SIO_STREAM  0xA9
-#define     CH341A_CMD_I2C_STREAM  0xAA
-#define     CH341A_CMD_UIO_STREAM  0xAB
+#define    CH341A_CMD_SET_OUTPUT  0xA1
+#define    CH341A_CMD_IO_ADDR     0xA2
+#define    CH341A_CMD_PRINT_OUT   0xA3
+#define    CH341A_CMD_SPI_STREAM  0xA8
+#define    CH341A_CMD_SIO_STREAM  0xA9
+#define    CH341A_CMD_I2C_STREAM  0xAA
+#define    CH341A_CMD_UIO_STREAM  0xAB
 
-#define     CH341A_CMD_I2C_STM_STA 0x74
-#define     CH341A_CMD_I2C_STM_STO 0x75
-#define     CH341A_CMD_I2C_STM_OUT 0x80
-#define     CH341A_CMD_I2C_STM_IN  0xC0
-#define     CH341A_CMD_I2C_STM_MAX ( min( 0x3F, CH341_PACKET_LENGTH ) )
-#define     CH341A_CMD_I2C_STM_SET 0x60
-#define     CH341A_CMD_I2C_STM_US  0x40
-#define     CH341A_CMD_I2C_STM_MS  0x50
-#define     CH341A_CMD_I2C_STM_DLY 0x0F
-#define     CH341A_CMD_I2C_STM_END 0x00
+#define    CH341A_CMD_I2C_STM_STA 0x74
+#define    CH341A_CMD_I2C_STM_STO 0x75
+#define    CH341A_CMD_I2C_STM_OUT 0x80
+#define    CH341A_CMD_I2C_STM_IN  0xC0
+#define    CH341A_CMD_I2C_STM_MAX ( min( 0x3F, CH341_PACKET_LENGTH ) )
+#define    CH341A_CMD_I2C_STM_SET 0x60
+#define    CH341A_CMD_I2C_STM_US  0x40
+#define    CH341A_CMD_I2C_STM_MS  0x50
+#define    CH341A_CMD_I2C_STM_DLY 0x0F
+#define    CH341A_CMD_I2C_STM_END 0x00
 
-#define     CH341A_CMD_UIO_STM_IN  0x00
-#define     CH341A_CMD_UIO_STM_DIR 0x40
-#define     CH341A_CMD_UIO_STM_OUT 0x80
-#define     CH341A_CMD_UIO_STM_US  0xC0
-#define     CH341A_CMD_UIO_STM_END 0x20
+#define    CH341A_CMD_UIO_STM_IN  0x00
+#define    CH341A_CMD_UIO_STM_DIR 0x40
+#define    CH341A_CMD_UIO_STM_OUT 0x80
+#define    CH341A_CMD_UIO_STM_US  0xC0
+#define    CH341A_CMD_UIO_STM_END 0x20
 
-#define     CH341A_STM_I2C_20K     0x00
-#define     CH341A_STM_I2C_100K    0x01
-#define     CH341A_STM_I2C_400K    0x02
-#define     CH341A_STM_I2C_750K    0x03
-#define     CH341A_STM_SPI_DBL     0x04
+#define    CH341A_STM_I2C_20K     0x00
+#define    CH341A_STM_I2C_100K    0x01
+#define    CH341A_STM_I2C_400K    0x02
+#define    CH341A_STM_I2C_750K    0x03
+#define    CH341A_STM_SPI_DBL     0x04
 
 
 class ch341

@@ -25,7 +25,7 @@
 //=========================================================================//
 
 // #include <stdio.h>
-
+#include <QtCore>
 #include <QDebug>
 #include <QString>
 #include <QFile>
@@ -37,7 +37,7 @@
 
 #include "e2cmdw.h"
 
-#ifdef  __linux__
+#ifdef  Q_OS_LINUX
 # include <sys/io.h>
 # include <unistd.h>
 
@@ -109,7 +109,7 @@ PortInterface::PortInterface()
 	//      par_ports_base[1] = 0x278;
 	//      par_ports_base[2] = 0x3BC;
 
-#ifdef __linux__
+#ifdef Q_OS_LINUX
 	lcr_copy = ier_copy = -1;
 #endif
 
