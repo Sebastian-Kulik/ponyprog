@@ -46,6 +46,7 @@
 
 #include "qhexedit.h"
 
+#include "ch341a.h"
 #include "version.h"
 #include "e2profil.h"
 #include "e2dlg.h"
@@ -132,6 +133,22 @@ e2CmdWindow::e2CmdWindow(QWidget *parent) :
 	{
 		setStyleSheet(programStyleSheet);
 	}
+
+
+	int rc = 0;
+	context = NULL;
+	rc = libusb_init(&context);
+
+	if (rc != 0)
+	{
+		qApp->quit();
+	}
+
+	// Start timer that will periodicaly check if hardware is connected
+	hotplugTimer = new QTimer(this);
+	// this signal-slot connection is Qt5
+	connect(hotplugTimer, SIGNAL(timeout()), this, SLOT(hotplugTimerTick()));
+	hotplugTimer->start(500); // every 0.5 sec
 
 
 	if (readLangDir() == false)   // init from langFiles variable in format "filename:language"
@@ -298,6 +315,13 @@ e2CmdWindow::~e2CmdWindow()
 
 	// Now put a delete for each new in the constructor.
 
+	emit ch341Disconnected();
+
+	if (context != 0)
+	{
+		libusb_exit(context);
+	}
+
 	//      delete e2Menu;
 	delete e2HexEdit;
 	delete qbuf;
@@ -317,6 +341,73 @@ e2CmdWindow::~e2CmdWindow()
 }
 
 
+
+
+// Function pools messges from udev
+// Linux specific
+void e2CmdWindow::hotplugTimerTick()
+{
+	size_t count = 0;
+	static bool ch341_connected = false;
+
+	libusb_device **list = NULL;
+
+	count = libusb_get_device_list(context, &list);
+
+	if (count == 0)
+	{
+		ch341_connected = false;
+
+		emit ch341Disconnected();
+		return;
+	}
+
+	bool ch341_detected = false;
+
+	for (size_t idx = 0; idx < count; ++idx)
+	{
+		libusb_device *device = list[idx];
+		libusb_device_descriptor desc = {0};
+
+		int rc = libusb_get_device_descriptor(device, &desc);
+
+		if (rc != 0)
+		{
+			continue;
+		}
+
+		if (desc.idVendor == CH341A_USB_VENDOR && desc.idProduct == CH341A_USB_PRODUCT)
+		{
+			ch341_detected = true;
+
+			//      printf("Vendor:Device = %04x:%04x\n", desc.idVendor, desc.idProduct);
+		}
+	}
+
+	libusb_free_device_list(list, 1);
+
+	if (ch341_detected != ch341_connected)
+	{
+		if (ch341_detected == true)
+		{
+			statusbar->showMessage(translate(STR_HOTPLUGED) + ": CH341A", 2000);
+			emit ch341Connected();
+		}
+		else
+		{
+			statusbar->showMessage(translate(STR_DETACHED) + ": CH341A", 2000);
+			emit ch341Disconnected();
+		}
+
+// 		actionInfo->setEnabled(ch341_detected);
+		ch341_connected = ch341_detected;
+
+// 		if (refreshGUITimer->isActive() == false)
+// 		{
+// 			refreshElementsForms();
+// 		}
+	}
+}
 
 #if 0
 //======================>>> e2CmdWindow::CloseAppWin <<<===========================
@@ -1616,6 +1707,26 @@ void e2CmdWindow::onDtaChanged()
 	}
 }
 
+
+void e2CmdWindow::onCH341Disconn()
+{
+	if (ch341prog)
+	{
+		delete ch341prog;
+		ch341prog = NULL;
+	}
+}
+
+
+void e2CmdWindow::onCH341Conn()
+{
+	if (!ch341prog)
+	{
+		ch341prog = new ch341();
+	}
+}
+
+
 /**
  * @brief create all SIGNAL -> SLOT connections
  * EK 2017
@@ -1629,6 +1740,8 @@ void e2CmdWindow::createSignalSlotConnections()
 	//      connect(e2HexEdit, SIGNAL(overwriteModeChanged(bool)), this, SLOT(onOverwriteMode(bool)));
 	connect(e2HexEdit, SIGNAL(dataChanged()), this, SLOT(onDtaChanged()));
 
+	connect(this, SIGNAL(ch341Disconnected()), this, SLOT(onCH341Disconn()));
+	connect(this, SIGNAL(ch341Connected()), this, SLOT(onCH341Conn()));
 	// EK 2017
 	// TODO
 	// not implemented are: cut/copy/paste buttons

@@ -31,8 +31,11 @@
 #include <QApplication>
 #include <QCoreApplication>
 
+#include <libusb.h>
+
 #include "Translator.h"
 // #include "busio.h"
+#include "ch341a.h"
 
 //Include Bus Classes
 #include "i2cbus.h"
@@ -177,6 +180,8 @@ class e2App : public cTranslator
 	// AppWinInfo associated with this window
 	e2AppWinInfo *awip;
 
+	ch341 *ch341prog;
+
   private:
 	void initSettings();
 	void LookForBogoMips(); //should get bogomips
@@ -207,6 +212,7 @@ class e2App : public cTranslator
 	JdmInterface jdm_apiI;
 	//      JdmIOInterface jdm_ioI;
 	LinuxSysFsInterface linuxsysfs_ioI;
+
 
 	int port_number;        //port number used
 	BusIO *iniBus;                           //pointer to current Bus

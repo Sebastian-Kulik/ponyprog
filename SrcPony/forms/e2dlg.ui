@@ -10,54 +10,89 @@
     <x>0</x>
     <y>0</y>
     <width>330</width>
-    <height>336</height>
+    <height>412</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_5">
-   <item row="4" column="0" colspan="2">
-    <widget class="QFrame" name="frmPolsel">
+   <item row="1" column="0" rowspan="2" colspan="2">
+    <widget class="QFrame" name="frmPortsel">
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
      </property>
      <property name="frameShadow">
       <enum>QFrame::Raised</enum>
      </property>
-     <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0" colspan="2">
-       <widget class="QLabel" name="lblPol1">
-        <property name="text">
-         <string>TextLabel</string>
+     <layout class="QGridLayout" name="gridLayout_4">
+      <item row="2" column="1">
+       <widget class="QComboBox" name="cbxInterfCOM">
+        <property name="toolTip">
+         <string notr="true"/>
         </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QCheckBox" name="chkPol1">
-        <property name="text">
-         <string>CheckBox</string>
+        <property name="currentIndex">
+         <number>-1</number>
         </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QCheckBox" name="chkPol3">
-        <property name="text">
-         <string>CheckBox</string>
+        <property name="insertPolicy">
+         <enum>QComboBox::InsertAtTop</enum>
         </property>
        </widget>
       </item>
       <item row="2" column="0">
-       <widget class="QCheckBox" name="chkPol2">
+       <widget class="QRadioButton" name="rdbComPort">
         <property name="text">
-         <string>CheckBox</string>
+         <string>RadioButton</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
-       <widget class="QCheckBox" name="chkPol4">
+      <item row="4" column="0">
+       <widget class="QRadioButton" name="rdbLptPort">
         <property name="text">
-         <string>CheckBox</string>
+         <string>RadioButton</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QComboBox" name="cbxInterfLPT">
+        <property name="toolTip">
+         <string notr="true"/>
+        </property>
+        <property name="currentIndex">
+         <number>-1</number>
+        </property>
+        <property name="insertPolicy">
+         <enum>QComboBox::InsertAtTop</enum>
+        </property>
+        <property name="modelColumn">
+         <number>0</number>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0" colspan="2">
+       <widget class="Line" name="line">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0" colspan="2">
+       <widget class="QRadioButton" name="rdbUSBPort">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>31</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>RadioButton</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" colspan="2">
+       <widget class="Line" name="line_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
         </property>
        </widget>
       </item>
@@ -109,84 +144,73 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="0" colspan="2">
-    <widget class="QGroupBox" name="frmComsel">
-     <layout class="QGridLayout" name="gridLayout_3">
-      <item row="0" column="1">
-       <widget class="QComboBox" name="cbxInterfNum">
-        <property name="toolTip">
-         <string notr="true"/>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Select number</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="1" column="0" colspan="2">
-    <widget class="QFrame" name="frmPortsel">
+   <item row="4" column="0" colspan="2">
+    <widget class="QFrame" name="frmPolsel">
      <property name="frameShape">
       <enum>QFrame::StyledPanel</enum>
      </property>
      <property name="frameShadow">
       <enum>QFrame::Raised</enum>
      </property>
-     <layout class="QGridLayout" name="gridLayout_4">
-      <item row="0" column="0">
-       <widget class="QRadioButton" name="rdbComPort">
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0" colspan="2">
+       <widget class="QLabel" name="lblPol1">
         <property name="text">
-         <string>RadioButton</string>
+         <string>TextLabel</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QCheckBox" name="chkPol1">
+        <property name="text">
+         <string>CheckBox</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QCheckBox" name="chkPol3">
+        <property name="text">
+         <string>CheckBox</string>
         </property>
        </widget>
       </item>
       <item row="2" column="0">
-       <widget class="QRadioButton" name="rdbLptPort">
+       <widget class="QCheckBox" name="chkPol2">
         <property name="text">
-         <string>RadioButton</string>
+         <string>CheckBox</string>
         </property>
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="QComboBox" name="cbxInterfLPT">
-        <property name="toolTip">
-         <string notr="true"/>
-        </property>
-        <property name="currentIndex">
-         <number>-1</number>
-        </property>
-        <property name="insertPolicy">
-         <enum>QComboBox::InsertAtTop</enum>
-        </property>
-        <property name="modelColumn">
-         <number>0</number>
+       <widget class="QCheckBox" name="chkPol4">
+        <property name="text">
+         <string>CheckBox</string>
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
-       <widget class="QComboBox" name="cbxInterfCOM">
-        <property name="toolTip">
-         <string notr="true"/>
-        </property>
-        <property name="currentIndex">
-         <number>-1</number>
-        </property>
-        <property name="insertPolicy">
-         <enum>QComboBox::InsertAtTop</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0" colspan="2">
-       <widget class="Line" name="line">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-       </widget>
+     </layout>
+    </widget>
+   </item>
+   <item row="3" column="0" colspan="2">
+    <widget class="QGroupBox" name="frmComsel">
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Select number</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QComboBox" name="cbxInterfNum">
+          <property name="toolTip">
+           <string notr="true"/>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>

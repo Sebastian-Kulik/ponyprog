@@ -59,6 +59,8 @@ e2Dialog::e2Dialog(QWidget *bw, const QString title)
 
 	setWidgetsText();
 
+
+	connect(rdbUSBPort, SIGNAL(toggled(bool)), this, SLOT(onChangePort(bool)));
 	connect(rdbComPort, SIGNAL(toggled(bool)), this, SLOT(onChangePort(bool)));
 	connect(rdbLptPort, SIGNAL(toggled(bool)), this, SLOT(onChangePort(bool)));
 
@@ -98,7 +100,6 @@ void e2Dialog::onSelectCOM(int i)
 	qDebug() << "IntefType: " << (int)interf_type << ", index = " << i << ", COM";
 //	interf_type = (HInterfaceType)i;
 }
-
 
 void e2Dialog::onSelectNum(int i)
 {
@@ -142,8 +143,27 @@ void e2Dialog::onChangePort(bool b)
 			cbxInterfNum->setCurrentIndex(com_no);
 
 			interf_type = VindexToInterfType(0, cbxInterfCOM->currentIndex());
+			return;
 		}
-		else
+
+		if (s == rdbUSBPort)
+		{
+			qDebug() << "USB Port selected";
+
+			cbxInterfCOM->setEnabled(false);
+			cbxInterfLPT->setEnabled(false);
+
+			disconnect(cbxInterfNum, SIGNAL(currentIndexChanged(int)), this, SLOT(onSelectNum(int)));
+			cbxInterfNum->clear();
+			connect(cbxInterfNum, SIGNAL(currentIndexChanged(int)), this, SLOT(onSelectNum(int)));
+
+			port_no = 0;
+
+			interf_type = VindexToInterfType(2, 0); // 0 is auto
+			return;
+		}
+
+		if (s == rdbLptPort)
 		{
 			qDebug() << "LPT Port selected";
 
@@ -181,7 +201,9 @@ void e2Dialog::getSettings()
 	port_no = cmdWin->GetPort();
 
 	// init of radiobuttons
-	if (TypeToInterfVector(interf_type) == 0)		//COM
+	switch (TypeToInterfVector(interf_type))
+	{
+	case 0:		//COM
 	{
 		cbxInterfCOM->setCurrentIndex(TypeToInterfIndex(interf_type));
 		cbxInterfLPT->setCurrentIndex(0);
@@ -196,8 +218,10 @@ void e2Dialog::getSettings()
 		}
 
 		cbxInterfNum->setCurrentIndex(com_no);
+		break;
 	}
-	else
+
+	case 1:
 	{
 		cbxInterfLPT->setCurrentIndex(TypeToInterfIndex(interf_type));
 		cbxInterfCOM->setCurrentIndex(0);
@@ -212,6 +236,19 @@ void e2Dialog::getSettings()
 		}
 
 		cbxInterfNum->setCurrentIndex(lpt_no);
+		break;
+	}
+	case 2: // USB
+	{
+		cbxInterfLPT->setCurrentIndex(0);
+		cbxInterfCOM->setCurrentIndex(0);
+
+		port_no = 0;
+
+		rdbUSBPort->setChecked(true);
+		cbxInterfNum->setCurrentIndex(0);
+		break;
+	}
 	}
 
 	chkPol1->setChecked((cmdWin->GetPolarity() & RESETINV) ? 1 : 0);
@@ -286,6 +323,8 @@ void e2Dialog::setWidgetsText()
 	QStringList interfListL = GetInterfList(1);
 	cbxInterfLPT->addItems(interfListL);
 
+
+	rdbUSBPort->setText(translate(STR_LBLUSBAUTO));
 	rdbComPort->setText(translate(STR_LBLSERIAL));
 	rdbLptPort->setText(translate(STR_LBLPARALLEL));
 

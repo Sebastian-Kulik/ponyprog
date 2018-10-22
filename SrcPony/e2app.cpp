@@ -53,6 +53,8 @@ e2App::e2App() :
 
 	//         awinfo = 0;
 
+	ch341prog = NULL;
+
 	s2430B.SetOrganization(ORG8);           //Default X2444Bus organization is ORG16, but S24H30 organization is ORG8
 	//      mega103B.SetPageSize(256);
 	//      mega103B.SetFlashPagePolling(false);
@@ -380,49 +382,51 @@ void e2App::KeyIn(vWindow *win, vKey key, unsigned int shift)
 //=======================>>> e2App::SetInterface <<<=========================
 void e2App::SetInterfaceType(HInterfaceType type)
 {
+	iType = type;
+
 	switch (type)
 	{
 	//Interface initializers
 	case SIPROG_API:
-		iType = SIPROG_API;
+// 		iType = SIPROG_API;
 		busIntp = &siprog_apiI;
 		break;
 
 	case SIPROG_IO:
-		iType = SIPROG_IO;
+// 		iType = SIPROG_IO;
 		busIntp = &siprog_ioI;
 		break;
 
 	case EASYI2C_API:
-		iType = EASYI2C_API;
+// 		iType = EASYI2C_API;
 		busIntp = &easyi2c_apiI;
 		easyi2c_apiI.SetIOmode(false);
 		easyi2c_apiI.Close();
 		break;
 
 	case EASYI2C_IO:
-		iType = EASYI2C_IO;
+// 		iType = EASYI2C_IO;
 		busIntp = &easyi2c_ioI;
 		easyi2c_ioI.SetIOmode(true);
 		easyi2c_ioI.Close();
 		break;
 
 	case AVRISP:
-		iType = AVRISP;
+// 		iType = AVRISP;
 		busIntp = &avrisp_apiI;
 		avrisp_apiI.SetIOmode(false);
 		avrisp_apiI.Close();
 		break;
 
 	case AVRISP_IO:
-		iType = AVRISP_IO;
+// 		iType = AVRISP_IO;
 		busIntp = &avrisp_ioI;
 		avrisp_ioI.SetIOmode(true);
 		avrisp_ioI.Close();
 		break;
 
 	case JDM_API:
-		iType = JDM_API;
+// 		iType = JDM_API;
 		busIntp = &jdm_apiI;
 		jdm_apiI.SetCmd2CmdDelay(E2Profile::GetJDMCmd2CmdDelay());
 		break;
@@ -432,22 +436,27 @@ void e2App::SetInterfaceType(HInterfaceType type)
 	//              busIntp = &jdm_ioI;
 	//              break;
 	case DT006_API:
-		iType = DT006_API;
+// 		iType = DT006_API;
 		busIntp = &dt006_apiI;
 		dt006_apiI.SetIOmode(false);
 		dt006_apiI.Close();
 		break;
 
 	case DT006_IO:
-		iType = DT006_IO;
+// 		iType = DT006_IO;
 		busIntp = &dt006_ioI;
 		dt006_ioI.SetIOmode(true);
 		dt006_ioI.Close();
 		break;
 
 	case LINUXSYSFS_IO:
-		iType = LINUXSYSFS_IO;
+// 		iType = LINUXSYSFS_IO;
 		busIntp = &linuxsysfs_ioI;
+		break;
+
+	case USB_AUTO:
+		// TODO
+// 		iType = USB_AUTO;
 		break;
 
 	default:

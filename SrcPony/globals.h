@@ -68,6 +68,7 @@ enum HInterfaceType
 	DT006_IO,
 	//      JDM_IO,
 	LINUXSYSFS_IO,
+	USB_AUTO,
 	LAST_HT
 };
 

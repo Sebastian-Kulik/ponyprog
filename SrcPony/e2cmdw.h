@@ -48,7 +48,7 @@
 #include <QMenu>
 #include <QVector>
 #include <QFont>
-
+#include <QTimer>
 
 #include "device.h"
 #include "Translator.h"
@@ -166,6 +166,9 @@ class e2CmdWindow : public QMainWindow, public e2App, public Ui::MainWindow
 
 
   private slots:
+	void hotplugTimerTick(void);
+	void onCH341Disconn();
+	void onCH341Conn();
 // 	void onNew();
 	void onOpen(); //
 	void onSave(); //
@@ -298,6 +301,9 @@ class e2CmdWindow : public QMainWindow, public e2App, public Ui::MainWindow
 	void createScriptList();
 	void createFileList();
 
+  signals:
+	void ch341Connected();
+	void ch341Disconnected();
 
   private:
 	void createSignalSlotConnections();
@@ -364,8 +370,10 @@ class e2CmdWindow : public QMainWindow, public e2App, public Ui::MainWindow
 
 
   private:
-	QString selectedLang;
+	libusb_context *context;
 
+	QString selectedLang;
+	QTimer *hotplugTimer;
 	QFont sysFont;
 	short fontSize;
 
