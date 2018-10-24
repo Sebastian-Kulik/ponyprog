@@ -48,7 +48,7 @@ INSTALL(FILES "${PROJECT_SOURCE_DIR}/copyright"
         ) 
 # MESSAGE("PROJECT_SOURCE_DIR ${PROJECT_SOURCE_DIR}")
 
-INSTALL(FILES "${PROJECT_SOURCE_DIR}/udev/rules.d/99-ch341a-prog.rules" 
+INSTALL(FILES "${PROJECT_SOURCE_DIR}/udev/rules.d/99-ch341a.rules" 
         DESTINATION "/lib/udev/rules.d/" 
         COMPONENT "application" 
         PERMISSIONS OWNER_WRITE OWNER_READ GROUP_READ WORLD_READ
