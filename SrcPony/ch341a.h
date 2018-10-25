@@ -83,7 +83,7 @@ class ch341
 
   private:
 	void    v_print(int mode, int len);
-	void    SpiCs(uint8_t *ptr, bool selected);
+	void    SpiChipSelect(uint8_t *ptr, bool selected);
 	int32_t SpiStream(uint8_t *out, uint8_t *in, uint32_t len);
 	int32_t usbTransfer(const char *func, uint8_t type, uint8_t *buf, int len);
 	void    ReleaseInterface(void);

@@ -102,7 +102,7 @@ void ch341::v_print(int mode, int len)   // mode: begin=0, progress = 1
 
 	if (!verbose)
 	{
-		return ;
+		return;
 	}
 
 	time_t now;
@@ -118,7 +118,7 @@ void ch341::v_print(int mode, int len)   // mode: begin=0, progress = 1
 	case 1: // progress
 		if (now == started)
 		{
-			return ;
+			return;
 		}
 
 		dur = now - started;
@@ -316,7 +316,7 @@ int32_t ch341::SetStream(uint32_t speed)
 
 
 /* assert or deassert the chip-select pin of the spi device */
-void ch341::SpiCs(uint8_t *ptr, bool selected)
+void ch341::SpiChipSelect(uint8_t *ptr, bool selected)
 {
 	*ptr++ = CH341A_CMD_UIO_STREAM;
 	*ptr++ = CH341A_CMD_UIO_STM_OUT | (selected ? 0x36 : 0x37);
@@ -332,22 +332,28 @@ void ch341::SpiCs(uint8_t *ptr, bool selected)
 /* transfer len bytes of data to the spi device */
 int32_t ch341::SpiStream(uint8_t *out, uint8_t *in, uint32_t len)
 {
-	uint8_t inBuf[CH341_PACKET_LENGTH], outBuf[CH341_PACKET_LENGTH], *inPtr, *outPtr;
+	uint8_t *inBuf, *outBuf, *inPtr, *outPtr;
 	int32_t ret, packetLen;
 	bool done;
+	bool err = false;
 
 	if (devHandle == NULL)
 	{
 		return -1;
 	}
 
-	SpiCs(outBuf, true);
+	outBuf = new uint8_t[CH341_PACKET_LENGTH];
+
+	SpiChipSelect(outBuf, true);
 	ret = usbTransfer(__func__, BULK_WRITE_ENDPOINT, outBuf, 4);
 
 	if (ret < 0)
 	{
+		delete outBuf;
 		return -1;
 	}
+
+	inBuf = new uint8_t[CH341_PACKET_LENGTH];
 
 	inPtr = in;
 
@@ -374,14 +380,16 @@ int32_t ch341::SpiStream(uint8_t *out, uint8_t *in, uint32_t len)
 
 		if (ret < 0)
 		{
-			return -1;
+			err = true;
+			break;
 		}
 
 		ret = usbTransfer(__func__, BULK_READ_ENDPOINT, inBuf, packetLen - 1);
 
 		if (ret < 0)
 		{
-			return -1;
+			err = true;
+			break;
 		}
 
 		len -= ret;
@@ -393,8 +401,18 @@ int32_t ch341::SpiStream(uint8_t *out, uint8_t *in, uint32_t len)
 	}
 	while (!done);
 
-	SpiCs(outBuf, false);
-	ret = usbTransfer(__func__, BULK_WRITE_ENDPOINT, outBuf, 3);
+	if (!err)
+	{
+		SpiChipSelect(outBuf, false);
+		ret = usbTransfer(__func__, BULK_WRITE_ENDPOINT, outBuf, 3);
+	}
+	else
+	{
+		ret = -1;
+	}
+
+	delete outBuf;
+	delete inBuf;
 
 	if (ret < 0)
 	{
@@ -408,8 +426,8 @@ int32_t ch341::SpiStream(uint8_t *out, uint8_t *in, uint32_t len)
 /* read the JEDEC ID of the SPI Flash */
 int32_t ch341::SpiCapacity(void)
 {
-	uint8_t out[JEDEC_ID_LEN];
-	uint8_t in[JEDEC_ID_LEN], *ptr, cap;
+	uint8_t *outBuf;
+	uint8_t *inBuf, *ptr, cap;
 	int32_t ret;
 
 	if (devHandle == NULL)
@@ -417,7 +435,8 @@ int32_t ch341::SpiCapacity(void)
 		return -1;
 	}
 
-	ptr = out;
+	outBuf = new uint8_t[JEDEC_ID_LEN];
+	ptr = outBuf;
 	*ptr++ = 0x9F; // Read JEDEC ID
 
 	for (int i = 0; i < JEDEC_ID_LEN - 1; ++i)
@@ -425,26 +444,30 @@ int32_t ch341::SpiCapacity(void)
 		*ptr++ = 0x00;
 	}
 
-	ret = SpiStream(out, in, JEDEC_ID_LEN);
+	inBuf = new uint8_t[JEDEC_ID_LEN];
+
+	ret = SpiStream(outBuf, inBuf, JEDEC_ID_LEN);
 
 	if (ret < 0)
 	{
+		delete inBuf;
+		delete outBuf;
 		return ret;
 	}
 
-	if (!(in[1] == 0xFF && in[2] == 0xFF && in[3] == 0xFF))
+	if (!(inBuf[1] == 0xFF && inBuf[2] == 0xFF && inBuf[3] == 0xFF))
 	{
-		printf("Manufacturer ID: %02x\n", in[1]);
-		printf("Memory Type: %02x%02x\n", in[2], in[3]);
+		printf("Manufacturer ID: %02x\n", inBuf[1]);
+		printf("Memory Type: %02x%02x\n", inBuf[2], inBuf[3]);
 
-		if (in[0x11] == 'Q' && in[0x12] == 'R' && in[0x13] == 'Y')
+		if (inBuf[0x11] == 'Q' && inBuf[0x12] == 'R' && inBuf[0x13] == 'Y')
 		{
-			cap = in[0x28];
+			cap = inBuf[0x28];
 			printf("Reading device capacity from CFI structure\n");
 		}
 		else
 		{
-			cap = in[3];
+			cap = inBuf[3];
 			printf("No CFI structure found, trying to get capacity from device ID. Set manually if detection fails.\n");
 		}
 
@@ -453,8 +476,13 @@ int32_t ch341::SpiCapacity(void)
 	else
 	{
 		printf("Chip not found or missed in ch341a. Check connection\n");
+		delete inBuf;
+		delete outBuf;
 		exit(0);
 	}
+
+	delete inBuf;
+	delete outBuf;
 
 	return cap;
 }
@@ -564,8 +592,8 @@ int32_t ch341::EraseChip(void)
 /* read the content of SPI device to buf, make sure the buf is big enough before call  */
 int32_t ch341::SpiRead(uint8_t *buf, uint32_t add, uint32_t len)
 {
-	uint8_t out[CH341_MAX_PACKET_LEN];
-	uint8_t in[CH341_PACKET_LENGTH];
+	uint8_t *outBuf;
+	uint8_t *inBuf;
 
 	if (devHandle == NULL)
 	{
@@ -583,14 +611,18 @@ int32_t ch341::SpiRead(uint8_t *buf, uint32_t add, uint32_t len)
 	struct timeval tv = {0, 100};
 	v_print(0, len);  // verbose
 
-	memset(out, 0xff, CH341_MAX_PACKET_LEN);
+	outBuf = new uint8_t[CH341_MAX_PACKET_LEN];
+
+	memset(outBuf, 0xff, CH341_MAX_PACKET_LEN);
 
 	for (int i = 1; i < CH341_MAX_PACKETS; ++i)   // fill CH341A_CMD_SPI_STREAM for every packet
 	{
-		out[i * CH341_PACKET_LENGTH] = CH341A_CMD_SPI_STREAM;
+		outBuf[i * CH341_PACKET_LENGTH] = CH341A_CMD_SPI_STREAM;
 	}
 
-	memset(in, 0x00, CH341_PACKET_LENGTH);
+	inBuf = new uint8_t[CH341_PACKET_LENGTH];
+
+	memset(inBuf, 0x00, CH341_PACKET_LENGTH);
 	xferBulkIn  = libusb_alloc_transfer(0);
 	xferBulkOut = libusb_alloc_transfer(0);
 
@@ -600,14 +632,14 @@ int32_t ch341::SpiRead(uint8_t *buf, uint32_t add, uint32_t len)
 	{
 		v_print(1, len);  // verbose
 		fflush(stdout);
-		SpiCs(out, true);
+		SpiChipSelect(outBuf, true);
 		idx = CH341_PACKET_LENGTH + 1;
-		out[idx++] = 0xC0; // byte swapped command for Flash Read
+		outBuf[idx++] = 0xC0; // byte swapped command for Flash Read
 		tmp = add;
 
 		for (int i = 0; i < 3; ++i)   // starting address of next read
 		{
-			out[idx++] = swapByte((tmp >> 16) & 0xFF);
+			outBuf[idx++] = swapByte((tmp >> 16) & 0xFF);
 			tmp <<= 8;
 		}
 
@@ -632,11 +664,11 @@ int32_t ch341::SpiRead(uint8_t *buf, uint32_t add, uint32_t len)
 		}
 
 		bulkin_count = 0;
-		libusb_fill_bulk_transfer(xferBulkIn, devHandle, BULK_READ_ENDPOINT, in,
+		libusb_fill_bulk_transfer(xferBulkIn, devHandle, BULK_READ_ENDPOINT, inBuf,
 								  CH341_PACKET_LENGTH, cbBulkIn, buf, DEFAULT_TIMEOUT);
 		buf += max_payload; // advance user's pointer
 		libusb_submit_transfer(xferBulkIn);
-		libusb_fill_bulk_transfer(xferBulkOut, devHandle, BULK_WRITE_ENDPOINT, out,
+		libusb_fill_bulk_transfer(xferBulkOut, devHandle, BULK_WRITE_ENDPOINT, outBuf,
 								  pkg_len, cbBulkOut, NULL, DEFAULT_TIMEOUT);
 		libusb_submit_transfer(xferBulkOut);
 		old_counter = bulkin_count;
@@ -663,8 +695,8 @@ int32_t ch341::SpiRead(uint8_t *buf, uint32_t add, uint32_t len)
 			}
 		}
 
-		SpiCs(out, false);
-		ret = usbTransfer(__func__, BULK_WRITE_ENDPOINT, out, 3);
+		SpiChipSelect(outBuf, false);
+		ret = usbTransfer(__func__, BULK_WRITE_ENDPOINT, outBuf, 3);
 
 		if (ret < 0)
 		{
@@ -684,6 +716,9 @@ int32_t ch341::SpiRead(uint8_t *buf, uint32_t add, uint32_t len)
 		}
 	}
 
+	delete outBuf;
+	delete inBuf;
+
 	libusb_free_transfer(xferBulkIn);
 	libusb_free_transfer(xferBulkOut);
 	v_print(2, 0);
@@ -694,8 +729,8 @@ int32_t ch341::SpiRead(uint8_t *buf, uint32_t add, uint32_t len)
 /* write buffer(*buf) to SPI flash */
 int32_t ch341::SpiWrite(uint8_t *buf, uint32_t add, uint32_t len)
 {
-	uint8_t out[WRITE_PAYLOAD_LENGTH];
-	uint8_t in[CH341_PACKET_LENGTH];
+	uint8_t *outBuf;
+	uint8_t *inBuf;
 	uint32_t tmp, pkg_count;
 	struct libusb_transfer *xferBulkIn, *xferBulkOut;
 	uint32_t idx = 0;
@@ -710,9 +745,13 @@ int32_t ch341::SpiWrite(uint8_t *buf, uint32_t add, uint32_t len)
 		return -1;
 	}
 
-	memset(out, 0xff, WRITE_PAYLOAD_LENGTH);
+	outBuf = new uint8_t[WRITE_PAYLOAD_LENGTH];
+
+	memset(outBuf, 0xff, WRITE_PAYLOAD_LENGTH);
 	xferBulkIn  = libusb_alloc_transfer(0);
 	xferBulkOut = libusb_alloc_transfer(0);
+
+	inBuf = new uint8_t[CH341_PACKET_LENGTH];
 
 	printf("Write started!\n");
 
@@ -720,17 +759,17 @@ int32_t ch341::SpiWrite(uint8_t *buf, uint32_t add, uint32_t len)
 	{
 		v_print(1, len);
 
-		out[0] = 0x06; // Write enable
-		ret = SpiStream(out, in, 1);
-		SpiCs(out, true);
+		outBuf[0] = 0x06; // Write enable
+		ret = SpiStream(outBuf, inBuf, 1);
+		SpiChipSelect(outBuf, true);
 		idx = CH341_PACKET_LENGTH;
-		out[idx++] = CH341A_CMD_SPI_STREAM;
-		out[idx++] = 0x40; // byte swapped command for Flash Page Write
+		outBuf[idx++] = CH341A_CMD_SPI_STREAM;
+		outBuf[idx++] = 0x40; // byte swapped command for Flash Page Write
 		tmp = add;
 
 		for (int i = 0; i < 3; ++i)   // starting address of next write
 		{
-			out[idx++] = swapByte((tmp >> 16) & 0xFF);
+			outBuf[idx++] = swapByte((tmp >> 16) & 0xFF);
 			tmp <<= 8;
 		}
 
@@ -741,12 +780,12 @@ int32_t ch341::SpiWrite(uint8_t *buf, uint32_t add, uint32_t len)
 		{
 			if (idx % CH341_PACKET_LENGTH == 0)
 			{
-				out[idx++] = CH341A_CMD_SPI_STREAM;
+				outBuf[idx++] = CH341A_CMD_SPI_STREAM;
 				pkg_count ++;
 			}
 			else
 			{
-				out[idx++] = swapByte(*buf++);
+				outBuf[idx++] = swapByte(*buf++);
 				tmp++;
 
 				if (((add + tmp) & 0xFF) == 0)   // cross page boundary
@@ -759,10 +798,10 @@ int32_t ch341::SpiWrite(uint8_t *buf, uint32_t add, uint32_t len)
 		len -= tmp;
 		add += tmp;
 		bulkin_count = 0;
-		libusb_fill_bulk_transfer(xferBulkIn, devHandle, BULK_READ_ENDPOINT, in,
+		libusb_fill_bulk_transfer(xferBulkIn, devHandle, BULK_READ_ENDPOINT, inBuf,
 								  CH341_PACKET_LENGTH, cbBulkIn, NULL, DEFAULT_TIMEOUT);
 		libusb_submit_transfer(xferBulkIn);
-		libusb_fill_bulk_transfer(xferBulkOut, devHandle, BULK_WRITE_ENDPOINT, out,
+		libusb_fill_bulk_transfer(xferBulkOut, devHandle, BULK_WRITE_ENDPOINT, outBuf,
 								  idx, cbBulkOut, NULL, DEFAULT_TIMEOUT);
 		libusb_submit_transfer(xferBulkOut);
 		old_counter = bulkin_count;
@@ -794,16 +833,16 @@ int32_t ch341::SpiWrite(uint8_t *buf, uint32_t add, uint32_t len)
 			break;
 		}
 
-		SpiCs(out, false);
-		ret = usbTransfer(__func__, BULK_WRITE_ENDPOINT, out, 3);
+		SpiChipSelect(outBuf, false);
+		ret = usbTransfer(__func__, BULK_WRITE_ENDPOINT, outBuf, 3);
 
 		if (ret < 0)
 		{
 			break;
 		}
 
-		out[0] = 0x04; // Write disable
-		ret = SpiStream(out, in, 1);
+		outBuf[0] = 0x04; // Write disable
+		ret = SpiStream(outBuf, inBuf, 1);
 
 		do
 		{
@@ -831,6 +870,9 @@ int32_t ch341::SpiWrite(uint8_t *buf, uint32_t add, uint32_t len)
 
 	libusb_free_transfer(xferBulkIn);
 	libusb_free_transfer(xferBulkOut);
+
+	delete outBuf;
+	delete inBuf;
 
 	v_print(2, 0);
 	return ret;
